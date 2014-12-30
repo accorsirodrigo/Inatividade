@@ -104,14 +104,26 @@ public class MainClass {
 
         for (;;) {
             int idleSec = getIdleTimeMillisWin32() / 1000;
+            boolean bloqueio = TryClass.getInstance().isBloqueio();
 
             State newState = idleSec < 15 ? State.ONLINE : idleSec > 5 * 60 ? State.AWAY : State.IDLE;
 
 //          bloqueia o windows    
-            System.out.println("Idle: " + idleSec + " - Tempo: " + TryClass.getInstance().getTempo());
+            //System.out.println("Idle: " + idleSec + " - Tempo: " + TryClass.getInstance().getTempo());
             try {
                 if (idleSec > TryClass.getInstance().getTempo()) {
-                    WindowsController.bloqueia();
+                    //System.out.println("> tempo!");
+                    if (bloqueio) {
+                        WindowsController.bloqueia();
+                    } else {
+                        while (true) {
+                            idleSec = getIdleTimeMillisWin32() / 1000;
+                            if (idleSec == 0) {
+                                WindowsController.bloqueia();
+                                break;
+                            }
+                        }
+                    }
                 }
             } catch (Exception e) {
             }
